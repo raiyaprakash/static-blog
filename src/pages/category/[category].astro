@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { slugify } from '../../lib/slug';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const categories = [...new Set(posts.map((post) => post.data.category))];
+  return categories.map((category) => ({
+    params: { category: slugify(category) },
+    props: { category, posts: posts.filter((post) => post.data.category === category) },
+  }));
+}
+
+const { category, posts } = Astro.props;
+const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${category} — AstroJyotish`,
+  url: Astro.url.toString(),
+  description: `${category} से जुड़े सभी लेख।`,
+};
+---
+<BaseLayout title={`${category} — AstroJyotish`} description={`${category} से जुड़े सभी लेख।`} schema={schema}>
+  <div class="container page-title"><h1>{category}</h1><p>{category} से जुड़े सभी लेख।</p></div>
+  <section class="section"><div class="container">
+    {sortedPosts.length ? <div class="grid">{sortedPosts.map((post) => <PostCard post={post} />)}</div> : <div class="empty">इस category में अभी कोई लेख नहीं है।</div>}
+  </div></section>
+</BaseLayout>

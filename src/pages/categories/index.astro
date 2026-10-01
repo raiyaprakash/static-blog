@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slug';
+const posts = await getCollection('posts');
+const categories = [...new Set(posts.map((post) => post.data.category))];
+---
+<BaseLayout title="सभी Categories — AstroJyotish" description="AstroJyotish की सभी categories देखें।">
+  <div class="container page-title"><h1>सभी Categories</h1><p>विषय के अनुसार सभी लेख देखें।</p></div>
+  <section class="section"><div class="container"><div class="zodiac">{categories.map((category) => <a href={`/category/${slugify(category)}/`}>{category}</a>)}</div></div></section>
+</BaseLayout>

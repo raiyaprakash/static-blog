@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { slugify, postSlug } from '../../lib/slug';
+import { siteConfig } from '../../config/site';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({ params: { slug: postSlug(post.id, post.data.slug) }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const articleSlug = postSlug(post.id, post.data.slug);
+const canonical = new URL(`/posts/${articleSlug}/`, siteConfig.url).toString();
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.date.toISOString(),
+  dateModified: (post.data.updated ?? post.data.date).toISOString(),
+  author: { '@type': 'Person', name: post.data.author },
+  publisher: { '@type': 'Organization', name: 'AstroJyotish', url: siteConfig.url },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+  inLanguage: 'hi-IN',
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'होम', item: `${siteConfig.url}/` },
+    { '@type': 'ListItem', position: 2, name: 'लेख', item: `${siteConfig.url}/posts/` },
+    { '@type': 'ListItem', position: 3, name: post.data.title, item: canonical },
+  ],
+};
+---
+<BaseLayout title={`${post.data.title} — AstroJyotish`} description={post.data.description} type="article" schema={[schema, breadcrumbSchema]}>
+  <article class="article-wrap">
+    <div class="breadcrumbs"><a href="/">होम</a> / <a href="/posts/">लेख</a> / <a href={`/category/${slugify(post.data.category)}/`}>{post.data.category}</a></div>
+    <header class="article-header">
+      <div class="meta"><span class="category">{post.data.category}</span><span>•</span><time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('hi-IN')}</time><span>•</span><span>{post.data.author}</span></div>
+      <h1>{post.data.title}</h1>
+      <p class="article-lead">{post.data.description}</p>
+    </header>
+    <AdSlot slot="articleTop" />
+    <div class="tag-list" style="margin:18px 0">{post.data.tags.map((tag) => <a class="tag" href={`/tag/${slugify(tag)}/`}>#{tag}</a>)}</div>
+    <div class="article-layout">
+      <div>
+        <AdSlot slot="articleBeforeContent" />
+        <div class="article-content"><Content /></div>
+        <AdSlot slot="articleAfterContent" />
+      </div>
+      <aside class="article-sidebar"><AdSlot slot="articleSidebar" /></aside>
+    </div>
+  </article>
+</BaseLayout>

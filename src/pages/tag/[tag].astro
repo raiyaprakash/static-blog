@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { slugify } from '../../lib/slug';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag: slugify(tag) },
+    props: { tag, posts: posts.filter((post) => post.data.tags.includes(tag)) },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `#${tag} — AstroJyotish`,
+  url: Astro.url.toString(),
+  description: `${tag} tag से जुड़े सभी लेख।`,
+};
+---
+<BaseLayout title={`#${tag} — AstroJyotish`} description={`${tag} tag से जुड़े सभी लेख।`} schema={schema}>
+  <div class="container page-title"><h1>#{tag}</h1><p>{tag} से जुड़े सभी लेख।</p></div>
+  <section class="section"><div class="container">
+    {sortedPosts.length ? <div class="grid">{sortedPosts.map((post) => <PostCard post={post} />)}</div> : <div class="empty">इस tag से जुड़ा कोई लेख नहीं है।</div>}
+  </div></section>
+</BaseLayout>

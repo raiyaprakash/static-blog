@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slug';
+const posts = await getCollection('posts');
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+---
+<BaseLayout title="सभी Tags — AstroJyotish" description="AstroJyotish के सभी tags देखें।">
+  <div class="container page-title"><h1>सभी Tags</h1><p>Tag के अनुसार लेख देखें।</p></div>
+  <section class="section"><div class="container"><div class="tag-list tag-cloud">{tags.map((tag) => <a class="tag" href={`/tag/${slugify(tag)}/`}>#{tag}</a>)}</div></div></section>
+</BaseLayout>
