@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import RecentPosts from '../../components/RecentPosts.astro';
+import { slugify } from '../../lib/slug';
+const allPosts=await getCollection('posts');
+export async function getStaticPaths(){const posts=await getCollection('posts');const countries=[...new Set(posts.flatMap(p=>p.data.countries||[]))];return countries.map(country=>({params:{country:slugify(country)},props:{country,posts:posts.filter(p=>(p.data.countries||[]).includes(country))}}));}
+const {country,posts}=Astro.props;const sortedPosts=posts.sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+---
+<BaseLayout title={`${country} Jobs — Job Career Hub`} description={`Latest job updates and career articles for ${country}.`}>
+<div class="container page-title"><span class="eyebrow">LOCATION</span><h1>{country} Jobs</h1><p>Browse job updates, recruitment news and career information related to {country}.</p></div>
+<section class="section"><div class="container archive-layout"><div>{sortedPosts.length?<div class="grid">{sortedPosts.map(post=><PostCard post={post}/>)}</div>:<div class="empty">No articles found for this location.</div>}</div><aside class="archive-sidebar"><RecentPosts posts={allPosts} limit={5}/></aside></div></section>
+</BaseLayout>

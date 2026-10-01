@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import { siteConfig } from '../config/site';
+import SeoSchema from '../components/SeoSchema.astro';
+import AdSlot from '../components/AdSlot.astro';
+import SearchBox from '../components/SearchBox.astro';
+
+const {
+  title = siteConfig.name,
+  description = siteConfig.description,
+  image = '/og-image.jpg',
+  type = 'website',
+  schema,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, siteConfig.url).toString();
+const ogImage = new URL(image, siteConfig.url).toString();
+const defaultSchema = {
+  '@context':'https://schema.org', '@type':'WebSite', name:siteConfig.name,
+  url:siteConfig.url, description:siteConfig.description, inLanguage:siteConfig.language,
+  potentialAction:{'@type':'SearchAction',target:{'@type':'EntryPoint',urlTemplate:`${siteConfig.url}/search/?q={search_term_string}`},'query-input':'required name=search_term_string'}
+};
+---
+<!doctype html>
+<html lang={siteConfig.language}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta property="og:title" content={title} /><meta property="og:description" content={description} />
+  <meta property="og:type" content={type} /><meta property="og:url" content={canonical} /><meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={title} /><meta name="twitter:description" content={description} /><meta name="twitter:image" content={ogImage} />
+  <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href="/rss.xml" />
+  <style>:root{--primary:{siteConfig.theme.primary};--primary-dark:{siteConfig.theme.primaryDark};--accent:{siteConfig.theme.accent};--bg:{siteConfig.theme.background};--surface:{siteConfig.theme.surface};--text:{siteConfig.theme.text};--muted:{siteConfig.theme.muted}}</style>
+  {siteConfig.code.head && <Fragment set:html={siteConfig.code.head} />}
+  <SeoSchema data={schema ?? defaultSchema} />
+</head>
+<body>
+  {siteConfig.code.header && <Fragment set:html={siteConfig.code.header} />}
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/" aria-label={siteConfig.name}>{siteConfig.logoText}</a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        {siteConfig.navigation.map(item => <a href={item.href}>{item.label}</a>)}
+      </nav>
+      <div class="nav-actions"><a class="header-search" href="/search/" aria-label="Search">⌕</a><button class="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button></div>
+    </div>
+    <div class="mobile-nav" hidden>
+      <div class="container">{siteConfig.navigation.map(item => <a href={item.href}>{item.label}</a>)}<a href="/search/">Search</a></div>
+    </div>
+  </header>
+  <AdSlot slot="header" />
+  <main><slot /></main>
+  <AdSlot slot="footer" />
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a class="brand footer-brand" href="/">{siteConfig.name}</a><p>{siteConfig.description}</p></div>
+      <div><strong>Explore</strong><div class="footer-links">{siteConfig.footerLinks.map(item=><a href={item.href}>{item.label}</a>)}</div></div>
+    </div>
+    <div class="container footer-bottom">© {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</div>
+  </footer>
+  {siteConfig.code.footer && <Fragment set:html={siteConfig.code.footer} />}
+  <script is:inline>
+    const menu=document.querySelector('.menu-btn'), mobile=document.querySelector('.mobile-nav');
+    menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')==='true';menu.setAttribute('aria-expanded',String(!open));mobile.hidden=open;});
+  </script>
+</body>
+</html>

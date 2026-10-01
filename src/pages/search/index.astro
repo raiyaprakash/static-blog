@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SearchBox from '../../components/SearchBox.astro';
+---
+<BaseLayout title="Search — Job Career Hub" description="Search jobs, companies, skills, locations and career articles.">
+<section class="page-title"><div class="container"><span class="eyebrow">SEARCH</span><h1>Search Jobs & Articles</h1><p>Find relevant job updates, companies, skills and career guides.</p><SearchBox /></div></section>
+<section class="section search-section"><div class="container"><div id="search-status" class="search-status">Enter a keyword above to search.</div><div id="search-results" class="grid"></div></div></section>
+<script is:inline>
+const form=document.querySelector('.search-form'), input=form?.querySelector('input'), results=document.querySelector('#search-results'), status=document.querySelector('#search-status');
+const normalize=s=>(s||'').toLowerCase().trim();
+async function run(){const q=normalize(new URLSearchParams(location.search).get('q'));if(input)input.value=q;if(!q){status.textContent='Enter a keyword above to search.';return}status.textContent='Searching…';const data=await fetch('/search-index.json').then(r=>r.json());const terms=q.split(/\s+/).filter(Boolean);const found=data.filter(p=>terms.every(t=>normalize([p.title,p.description,p.category,p.content,...p.tags,...(p.countries||[])].join(' ')).includes(t)));status.textContent=found.length?`${found.length} result${found.length===1?'':'s'} for “${q}”`:`No results found for “${q}”.`;results.innerHTML=found.map(p=>`<article class="card post-card"><a class="card-media" href="${p.url}"><div class="card-placeholder"><span>JOB</span></div></a><div class="card-body"><div class="meta"><span class="category">${p.category}</span><span>•</span><time>${p.date}</time></div><h3><a href="${p.url}">${p.title}</a></h3><p>${p.description}</p><div class="tag-list">${p.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div></div></article>`).join('')}
+form?.addEventListener('submit',e=>{e.preventDefault();const q=input.value.trim();location.href=q?`/search/?q=${encodeURIComponent(q)}`:'/search/'});run();
+</script>
+</BaseLayout>

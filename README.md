@@ -1,24 +1,45 @@
-# AstroJyotish — Astro Blog
+# Job Career Hub — Astro Static Job Blog
 
-A static Hindi astrology blog built with Astro and designed for Cloudflare Pages.
+A customizable English-language Astro blog starter for job websites covering India, the UK, the US and other countries.
 
 ## Features
 
+- Responsive English job-blog UI
 - Home page with Load More Posts
-- Individual article pages
-- Category and tag pages with clean slugs
-- Categories and Tags index pages
-- Markdown content collection
-- Article, WebSite and BreadcrumbList JSON-LD schema
+- Static article pages
+- Categories and tags
+- Country/location archives
+- Client-side search across title, description, category, tags and article body
+- Recently Published sidebar
+- Related Jobs & Articles based on category/tags
+- JSON-LD Website, BlogPosting and BreadcrumbList schema
 - Canonical, Open Graph and Twitter metadata
 - Sitemap and RSS
-- Header / footer / head custom-code insertion
-- Multiple ad placement slots
-- Responsive design
+- Central configuration for branding, navigation, theme, labels, custom code and ad placements
+- Markdown content system
+- Cloudflare Pages compatible
 
-## 1. Write an article
+## Local development
 
-Create a Markdown file inside:
+```bash
+npm install
+npm run dev
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+Cloudflare Pages:
+
+- Build command: `npm run build`
+- Output directory: `dist`
+
+## Write a new article
+
+Create a Markdown file in:
 
 `src/content/posts/`
 
@@ -26,93 +47,112 @@ Example:
 
 ```md
 ---
-title: "मेष राशि 2027: वार्षिक राशिफल"
-description: "मेष राशि के लिए 2027 का वार्षिक राशिफल।"
-date: 2027-01-01
-category: "राशिफल"
-tags: ["मेष", "राशिफल", "2027"]
-author: "AstroJyotish"
+title: "Customer Service Jobs in the UK: Requirements and How to Apply"
+slug: "customer-service-jobs-uk"
+description: "A guide to customer service jobs, requirements and application tips."
+date: 2026-10-02
+category: "UK Jobs"
+tags: ["UK Jobs", "Customer Service", "Jobs"]
+countries: ["United Kingdom"]
+author: "Job Career Hub"
 featured: false
 ---
 
-# मेष राशि 2027
+# Customer Service Jobs in the UK
 
-अपना article यहां लिखें।
+Write the article here.
 
-## करियर
+## Requirements
 
-Content...
+Write the section here.
 ```
 
-The URL is generated automatically from the filename, for example:
+The article URL will be:
 
-`src/content/posts/mesh-rashi-2027.md` → `/posts/mesh-rashi-2027/`
+`/posts/customer-service-jobs-uk/`
 
-The sample files use an explicit `slug`, so `01-mesh-rashi-2026.md` opens at `/posts/mesh-rashi-2026/` rather than exposing the numeric filename prefix.
+## Central customization
 
-## 2. Header / footer / head code
-
-Open:
+Edit:
 
 `src/config/site.ts`
 
-You will find:
+You can change:
 
-- `code.head` — code inside `<head>`
-- `code.header` — code immediately after `<body>`
-- `code.footer` — code immediately before `</body>`
+- Site name
+- Domain
+- Description
+- Logo text
+- Theme colors
+- Navigation
+- Footer links
+- Homepage hero text
+- Search placeholder
+- Number of posts shown before Load More
 
-This is useful for verification tags, analytics, GTM, scripts, etc.
+### Header / Footer / Head code
 
-## 3. Ads
-
-The same file contains an `ads` section:
-
-- `homeTop`
-- `homeAfterPosts`
-- `articleTop`
-- `articleBeforeContent`
-- `articleAfterContent`
-- `articleSidebar`
-- `footer`
-
-Paste the complete ad unit HTML/JS into any slot. Leave it empty to disable that placement.
-
-For ad networks that use one global loader script and separate ad units, put the loader once in `code.head` and the individual ad unit code in the relevant ad slots.
-
-## 4. Local development
-
-```bash
-npm install
-npm run dev
+```ts
+code: {
+  head: '',
+  header: '',
+  footer: '',
+}
 ```
 
-## 5. Cloudflare Pages
+Paste trusted HTML/JS into these slots. Useful for analytics, GTM, verification tags or other site-wide scripts.
 
-Build command:
+### Ad placement
 
-```bash
-npm run build
+```ts
+ads: {
+  header: '',
+  homeTop: '',
+  homeAfterHero: '',
+  homeAfterPosts: '',
+  homeBottom: '',
+  archiveTop: '',
+  articleTop: '',
+  articleBeforeContent: '',
+  articleAfterParagraph: '',
+  articleAfterContent: '',
+  articleSidebarTop: '',
+  articleSidebarMiddle: '',
+  articleSidebarBottom: '',
+  footer: '',
+}
 ```
 
-Output directory:
+Paste a complete ad snippet into the desired slot. Empty slots render nothing.
 
-```text
-dist
-```
+## Search
 
-## 6. Change your production domain
+The build generates `/search-index.json`. The search page loads that static index in the browser and searches title, description, category, tags, country and article body.
 
-Update `siteConfig.url` in `src/config/site.ts` and the `site` value in `astro.config.mjs` to your real domain. This keeps canonical URLs, sitemap and schema correct.
+## Content fields
 
-## 7. Category and tag URLs
+Required:
 
-Common Hindi terms use clean English aliases, for example:
+- `title`
+- `description`
+- `date`
+- `category`
 
-- `/category/rashifal/`
-- `/category/jyotish/`
-- `/tag/mesh/`
-- `/tag/vrishabh/`
-- `/tag/rashifal/`
+Optional:
 
-Other Hindi tags/categories automatically receive a URL-safe slug.
+- `slug`
+- `updated`
+- `tags`
+- `countries`
+- `image`
+- `author`
+- `featured`
+
+## Important before production
+
+1. Change `siteConfig.url` to your real domain.
+2. Update `astro.config.mjs` `site` to the same canonical domain.
+3. Replace the placeholder About, Contact, Privacy Policy and Terms content.
+4. Add your real logo/OG image if required.
+5. Add only the ad/analytics scripts you actually use.
+6. Verify every job listing against the employer's official source before publishing.

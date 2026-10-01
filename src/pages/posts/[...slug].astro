@@ -1,0 +1,35 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import RecentPosts from '../../components/RecentPosts.astro';
+import RelatedPosts from '../../components/RelatedPosts.astro';
+import { slugify, postSlug } from '../../lib/slug';
+import { siteConfig } from '../../config/site';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({ params:{slug:postSlug(post.id,post.data.slug)}, props:{post} }));
+}
+const { post }=Astro.props;
+const allPosts=(await getCollection('posts')).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+const { Content }=await render(post);
+const articleSlug=postSlug(post.id,post.data.slug);
+const canonical=new URL(`/posts/${articleSlug}/`,siteConfig.url).toString();
+const schema={'@context':'https://schema.org','@type':'BlogPosting',headline:post.data.title,description:post.data.description,datePublished:post.data.date.toISOString(),dateModified:(post.data.updated??post.data.date).toISOString(),author:{'@type':'Organization',name:post.data.author},publisher:{'@type':'Organization',name:siteConfig.name,url:siteConfig.url},mainEntityOfPage:{'@type':'WebPage','@id':canonical},inLanguage:'en-US'};
+const breadcrumb={'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{ '@type':'ListItem',position:1,name:'Home',item:`${siteConfig.url}/`},{ '@type':'ListItem',position:2,name:post.data.category,item:`${siteConfig.url}/category/${slugify(post.data.category)}/`},{ '@type':'ListItem',position:3,name:post.data.title,item:canonical}]};
+---
+<BaseLayout title={`${post.data.title} — ${siteConfig.name}`} description={post.data.description} type="article" image={post.data.image ?? '/og-image.jpg'} schema={[schema,breadcrumb]}>
+<article class="article-wrap"><div class="container article-container">
+<div class="breadcrumbs"><a href="/">Home</a><span>/</span><a href={`/category/${slugify(post.data.category)}/`}>{post.data.category}</a><span>/</span><span>{post.data.title}</span></div>
+<div class="article-layout"><div class="article-main">
+<header class="article-header"><div class="meta"><a class="category" href={`/category/${slugify(post.data.category)}/`}>{post.data.category}</a><span>•</span><time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</time><span>•</span><span>By {post.data.author}</span></div><h1>{post.data.title}</h1><p class="article-lead">{post.data.description}</p></header>
+<AdSlot slot="articleTop" />
+{post.data.tags.length>0&&<div class="tag-list article-tags">{post.data.tags.map(tag=><a class="tag" href={`/tag/${slugify(tag)}/`}>{tag}</a>)}</div>}
+<AdSlot slot="articleBeforeContent" />
+<div class="article-content"><Content /></div>
+<AdSlot slot="articleAfterContent" />
+<RelatedPosts current={post} posts={allPosts} />
+</div><aside class="article-sidebar"><AdSlot slot="articleSidebarTop" /><RecentPosts posts={allPosts} currentId={post.id} limit={5} /><AdSlot slot="articleSidebarMiddle" /><AdSlot slot="articleSidebarBottom" /></aside></div>
+</div></article>
+</BaseLayout>

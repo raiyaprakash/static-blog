@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import RecentPosts from '../../components/RecentPosts.astro';
+import { slugify } from '../../lib/slug';
+const allPosts=await getCollection('posts');
+export async function getStaticPaths(){const posts=await getCollection('posts');const categories=[...new Set(posts.map(p=>p.data.category))];return categories.map(category=>({params:{category:slugify(category)},props:{category,posts:posts.filter(p=>p.data.category===category)}}));}
+const {category,posts}=Astro.props;const sortedPosts=posts.sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+const schema={'@context':'https://schema.org','@type':'CollectionPage',name:`${category} — Job Career Hub`,url:Astro.url.toString(),description:`Latest ${category} job updates and career articles.`};
+---
+<BaseLayout title={`${category} — Job Career Hub`} description={`Latest ${category} job updates and career articles.`} schema={schema}>
+<div class="container page-title"><span class="eyebrow">CATEGORY</span><h1>{category}</h1><p>Browse the latest {category.toLowerCase()} updates, jobs and career information.</p></div>
+<section class="section"><div class="container archive-layout"><div>{sortedPosts.length?<div class="grid">{sortedPosts.map(post=><PostCard post={post}/>)}</div>:<div class="empty">No articles in this category yet.</div>}</div><aside class="archive-sidebar"><RecentPosts posts={allPosts} limit={5}/></aside></div></section>
+</BaseLayout>

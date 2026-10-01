@@ -1,0 +1,6 @@
+---
+import { siteConfig } from '../config/site';
+const { slot, class: className = '' } = Astro.props;
+const code = siteConfig.ads[slot as keyof typeof siteConfig.ads];
+---
+{code && <div class={`ad-slot ad-slot-${slot} ${className}`} aria-label="Advertisement" set:html={code}></div>}

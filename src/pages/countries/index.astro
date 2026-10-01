@@ -1,0 +1,8 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slug';
+const posts=await getCollection('posts');
+const countries=[...new Set(posts.flatMap(p=>p.data.countries||[]))].sort();
+---
+<BaseLayout title="Jobs by Country — Job Career Hub" description="Browse job and career updates by country."><div class="container page-title"><span class="eyebrow">LOCATIONS</span><h1>Jobs by Country</h1><p>Explore job updates and career information for India, the UK, the US and other locations.</p></div><section class="section"><div class="container category-grid">{countries.map(country=><a class="category-box" href={`/country/${slugify(country)}/`}><strong>{country}</strong><span>{posts.filter(p=>(p.data.countries||[]).includes(country)).length} articles</span></a>)}</div></section></BaseLayout>

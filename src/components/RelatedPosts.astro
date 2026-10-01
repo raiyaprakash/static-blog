@@ -1,0 +1,19 @@
+---
+import { postSlug } from '../lib/slug';
+const { current, posts = [], limit = 4 } = Astro.props;
+const scored = posts.filter((p:any) => p.id !== current.id).map((p:any) => {
+  const sharedTags = p.data.tags.filter((tag:string) => current.data.tags.includes(tag)).length;
+  const sameCategory = p.data.category === current.data.category ? 3 : 0;
+  return { post:p, score: sharedTags * 2 + sameCategory };
+}).sort((a:any,b:any) => b.score - a.score || b.post.data.date.valueOf() - a.post.data.date.valueOf()).slice(0,limit);
+---
+{scored.length > 0 && <section class="related-section">
+  <div class="section-head"><div><h2>Related Jobs & Articles</h2><p>More updates you may find useful.</p></div></div>
+  <div class="grid related-grid">
+    {scored.map(({post}:any) => <article class="related-card">
+      <span class="related-label">{post.data.category}</span>
+      <h3><a href={`/posts/${postSlug(post.id, post.data.slug)}/`}>{post.data.title}</a></h3>
+      <p>{post.data.description}</p>
+    </article>)}
+  </div>
+</section>}

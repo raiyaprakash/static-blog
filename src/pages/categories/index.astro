@@ -1,0 +1,8 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slug';
+const posts=await getCollection('posts');
+const categories=[...new Set(posts.map(p=>p.data.category))];
+---
+<BaseLayout title="Job Categories — Job Career Hub" description="Browse job and career articles by category."><div class="container page-title"><span class="eyebrow">BROWSE</span><h1>Job Categories</h1><p>Explore job openings, recruitment news and career guides by category.</p></div><section class="section"><div class="container category-grid">{categories.map(c=><a class="category-box" href={`/category/${slugify(c)}/`}><strong>{c}</strong><span>{posts.filter(p=>p.data.category===c).length} articles</span></a>)}</div></section></BaseLayout>

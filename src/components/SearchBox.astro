@@ -1,0 +1,9 @@
+---
+import { siteConfig } from '../config/site';
+const compact = Astro.props.compact ?? false;
+---
+<form class={`search-form ${compact ? 'search-form-compact' : ''}`} action="/search/" method="get" role="search">
+  <label class="sr-only" for={compact ? 'site-search-compact' : 'site-search'}>Search articles</label>
+  <input id={compact ? 'site-search-compact' : 'site-search'} name="q" type="search" placeholder={siteConfig.homepage.searchPlaceholder} autocomplete="off" />
+  <button type="submit" aria-label="Search">Search</button>
+</form>

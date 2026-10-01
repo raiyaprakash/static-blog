@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import AdSlot from '../../components/AdSlot.astro';
+const posts=(await getCollection('posts')).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+---
+<BaseLayout title="Latest Jobs & Career Articles — Job Career Hub" description="Browse the latest job openings, recruitment updates and career articles.">
+<div class="container page-title"><span class="eyebrow">LATEST UPDATES</span><h1>Latest Jobs & Career Articles</h1><p>Browse our newest employment updates, job opportunities and career guides.</p></div><AdSlot slot="archiveTop" />
+<section class="section"><div class="container"><div class="grid">{posts.map(post=><PostCard post={post}/>)}</div></div></section>
+</BaseLayout>
